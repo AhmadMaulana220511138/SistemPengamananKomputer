@@ -350,6 +350,8 @@
         return;
       }
       resultDiv.textContent = decrypted;
+          // Scroll ke hasil dengan animasi smooth
+    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (e) {
       resultDiv.textContent = "Error dekripsi: " + e;
     }

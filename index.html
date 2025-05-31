@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" href="img/UMC.png" type="image/png" />
+<title>Aplikasi Enkripsi dan Dekripsi</title>
+<style>
+  /* Reset & base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2em 1em;
+    color: #f0f0f5;
+  }
+
+  .container {
+    background: #ffffffdd;
+    max-width: 600px;
+    width: 100%;
+    padding: 2.5em 2.5em 3em;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+    color: #2c3e50;
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 0.1em;
+    font-weight: 800;
+    font-size: 2.25rem;
+    color: #2c3e50;
+    user-select: none;
+  }
+  .subtitle {
+    text-align: center;
+    margin: 0 0 1.8em;
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: #666;
+    user-select: none;
+  }
+
+  label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.35em;
+    color: #34495e;
+  }
+
+  select, input[type="text"], textarea {
+    width: 100%;
+    padding: 0.75em 1.2em;
+    margin-bottom: 1.4em;
+    font-size: 1rem;
+    border-radius: 12px;
+    border: 1.5px solid #ccc;
+    background: #fafafa;
+    box-shadow: inset 0 2px 6px rgb(0 0 0 / 0.07);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  select:focus, input[type="text"]:focus, textarea:focus {
+    border-color: #667eea;
+    outline: none;
+    box-shadow: 0 0 12px rgba(102, 126, 234, 0.5);
+  }
+  textarea {
+    resize: vertical;
+    min-height: 130px;
+  }
+
+  button {
+    background: #667eea;
+    border: none;
+    color: white;
+    padding: 0.75em 2.2em;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.5);
+    margin-right: 1em;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease;
+    user-select: none;
+  }
+  button:hover {
+    background: #5563c1;
+    box-shadow: 0 10px 28px rgba(85, 99, 193, 0.7);
+  }
+  button:active {
+    transform: scale(0.95);
+  }
+  button.clear-btn {
+    background: #999;
+    box-shadow: 0 8px 20px rgba(153, 153, 153, 0.4);
+  }
+  button.clear-btn:hover {
+    background: #777;
+    box-shadow: 0 10px 28px rgba(119, 119, 119, 0.6);
+  }
+
+  .result {
+    margin-top: 1.8em;
+    background: #eef2ff;
+    border-radius: 16px;
+    padding: 1.5em 1.7em;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1rem;
+    color: #34495e;
+    white-space: pre-wrap;
+    box-shadow: inset 0 3px 10px rgba(0,0,0,0.05);
+    user-select: text;
+
+    max-height: 320px;      
+    overflow-y: auto;       
+    word-wrap: break-word;  
+  }
+
+  .note {
+    margin-top: 2em;
+    background: #dbe9ff;
+    border-left: 6px solid #667eea;
+    border-radius: 12px;
+    padding: 1.3em 1.7em;
+    color: #2c3e50;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    user-select: none;
+    box-shadow: 0 2px 8px rgb(102 126 234 / 0.25);
+  }
+
+  /* Tombol salin */
+  #copyBtn {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 0.6em 1.5em;
+    font-size: 1rem;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 0.75em;
+    user-select: none;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  #copyBtn:hover {
+    background: #3e8e41;
+    box-shadow: 0 6px 15px rgba(62, 142, 65, 0.7);
+  }
+  #copyBtn:active {
+    transform: scale(0.95);
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+  .container {
+    padding: 2em 1.5em 2.5em;
+  }
+
+  button {
+    width: 100%;
+    display: block;
+    margin-bottom: 1em;
+  }
+
+  button.clear-btn {
+    margin-top: 0.5em; /* tambahkan jarak dari tombol sebelumnya */
+    margin-bottom: 0;
+  }
+}
+
+/* Toast notification container */
+.toast {
+  visibility: hidden;
+  min-width: 250px;
+  margin-left: -125px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 8px;
+  padding: 1em 1.5em;
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  bottom: 30px;
+  font-size: 1rem;
+  opacity: 0;
+  transition: opacity 0.5s ease, visibility 0.5s;
+  user-select: none;
+}
+
+/* Show the toast */
+.toast.show {
+  visibility: visible;
+  opacity: 1;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Aplikasi Enkripsi & Dekripsi</h2>
+  <p class="subtitle">
+    Mata Kuliah Pengamanan Sistem Komputer<br />
+    Ahmad Maulana | 220511138 | TI22A
+  </p>
+
+  <label for="algo">Pilih Algoritma:</label>
+  <select id="algo">
+    <option value="aes">AES (Simetris)</option>
+    <option value="des">DES (Simetris)</option>
+    <option value="des3">Triple DES (3DES - Simetris)</option>
+    <option value="rc4">RC4 (Stream Cipher)</option>
+    <option value="rabbit">Rabbit (Stream Cipher)</option>
+  </select>
+
+  <label for="keyInput">Kunci / Password:</label>
+  <input type="text" id="keyInput" placeholder="Masukkan kunci / password" />
+
+  <label for="inputText">Teks Input:</label>
+  <textarea id="inputText" placeholder="Masukkan teks yang ingin dienkripsi atau didekripsi"></textarea>
+
+  <button onclick="encrypt()">Enkripsi</button>
+  <button onclick="decrypt()">Dekripsi</button>
+  <button class="clear-btn" onclick="clearAll()" style="margin-top: 0.75em;">Clear</button>
+
+  <h3>Hasil:</h3>
+  <div id="result" class="result"></div>
+  <button id="copyBtn" onclick="copyResult()">Salin Hasil</button>
+
+  <div class="note">
+    <strong>Catatan Penggunaan:</strong><br>
+    - Masukkan kunci/password yang sama saat proses enkripsi dan dekripsi.<br>
+    - Pastikan format input teks sudah sesuai (untuk dekripsi gunakan hasil output enkripsi).<br>
+    - Gunakan algoritma yang dipilih dengan tepat sesuai kebutuhan.<br>
+    - Jangan bagikan kunci/password Anda kepada pihak yang tidak dipercaya.<br>
+    - Enkripsi hanya untuk keperluan edukasi dan latihan, jangan digunakan untuk data sensitif produksi.
+  </div>
+</div>
+
+<!-- Toast notification element -->
+<div id="toast" class="toast"></div>
+
+<!-- CryptoJS library -->
+<script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
+
+<script>
+  function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+
+    // Setelah 3 detik hilang lagi
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3000);
+  }
+
+  function encrypt() {
+    const algo = document.getElementById('algo').value;
+    const key = document.getElementById('keyInput').value.trim();
+    const inputText = document.getElementById('inputText').value.trim();
+    const resultDiv = document.getElementById('result');
+
+    if (!key) {
+      showToast('Masukkan kunci / password terlebih dahulu!');
+      return;
+    }
+    if (!inputText) {
+      showToast('Masukkan teks yang ingin dienkripsi!');
+      return;
+    }
+
+    try {
+      let ciphertext;
+      switch(algo) {
+        case 'aes':
+          ciphertext = CryptoJS.AES.encrypt(inputText, key).toString();
+          break;
+        case 'des':
+          ciphertext = CryptoJS.DES.encrypt(inputText, key).toString();
+          break;
+        case 'des3':
+          ciphertext = CryptoJS.TripleDES.encrypt(inputText, key).toString();
+          break;
+        case 'rc4':
+          ciphertext = CryptoJS.RC4.encrypt(inputText, key).toString();
+          break;
+        case 'rabbit':
+          ciphertext = CryptoJS.Rabbit.encrypt(inputText, key).toString();
+          break;
+        default:
+          showToast('Algoritma tidak dikenal!');
+          return;
+      }
+      resultDiv.textContent = ciphertext;
+    } catch (e) {
+      resultDiv.textContent = "Error enkripsi: " + e;
+    }
+  }
+
+  function decrypt() {
+    const algo = document.getElementById('algo').value;
+    const key = document.getElementById('keyInput').value.trim();
+    const inputText = document.getElementById('inputText').value.trim();
+    const resultDiv = document.getElementById('result');
+
+    if (!key) {
+      showToast('Masukkan kunci / password terlebih dahulu!');
+      return;
+    }
+    if (!inputText) {
+      showToast('Masukkan teks yang ingin didekripsi!');
+      return;
+    }
+
+    try {
+      let decrypted;
+      switch(algo) {
+        case 'aes':
+          decrypted = CryptoJS.AES.decrypt(inputText, key).toString(CryptoJS.enc.Utf8);
+          break;
+        case 'des':
+          decrypted = CryptoJS.DES.decrypt(inputText, key).toString(CryptoJS.enc.Utf8);
+          break;
+        case 'des3':
+          decrypted = CryptoJS.TripleDES.decrypt(inputText, key).toString(CryptoJS.enc.Utf8);
+          break;
+        case 'rc4':
+          decrypted = CryptoJS.RC4.decrypt(inputText, key).toString(CryptoJS.enc.Utf8);
+          break;
+        case 'rabbit':
+          decrypted = CryptoJS.Rabbit.decrypt(inputText, key).toString(CryptoJS.enc.Utf8);
+          break;
+        default:
+          showToast('Algoritma tidak dikenal!');
+          return;
+      }
+
+      if (!decrypted) {
+        resultDiv.textContent = "Gagal mendekripsi. Periksa kunci atau input.";
+        return;
+      }
+      resultDiv.textContent = decrypted;
+    } catch (e) {
+      resultDiv.textContent = "Error dekripsi: " + e;
+    }
+  }
+
+  function clearAll() {
+    document.getElementById('keyInput').value = '';
+    document.getElementById('inputText').value = '';
+    document.getElementById('result').textContent = '';
+  }
+
+  function copyResult() {
+    const resultDiv = document.getElementById('result');
+    const textToCopy = resultDiv.textContent;
+
+    if (!textToCopy) {
+      showToast("Tidak ada hasil untuk disalin!");
+      return;
+    }
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      showToast("Hasil berhasil disalin ke clipboard!");
+    }).catch(() => {
+      showToast("Gagal menyalin hasil. Silakan coba lagi.");
+    });
+  }
+</script>
+
+</body>
+</html>
